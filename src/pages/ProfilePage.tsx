@@ -86,7 +86,7 @@ const Sidebar: FC<SidebarProps> = ({ activePage, onNavigate, isOpen, onToggle })
                 <div className="flex items-center gap-3 text-[#ffffff] mb-10">
                     <LogoIcon />
                     <a href="/">
-                        <h1 className="text-xl font-bold">Creatorbase</h1>
+                        <h1 className="text-xl font-bold">InfluenceContact</h1>
                     </a>
                 </div>
                 <nav className="flex flex-col gap-2">
