@@ -94,3 +94,42 @@ export const useUpdatePassword = () => {
     },
   });
 };
+
+interface Transaction {
+  id: string;
+  userId: string;
+  amount: number;
+  currency: string;
+  status: string;
+  stripeInvoiceId: string;
+}
+
+// Define the response type for payment intent creation
+interface PaymentIntentResponse {
+  Message: string;
+  clientSecret: string;
+  transaction: Transaction;
+}
+
+// --- Create Payment Intent Mutation ---
+export const useCreatePaymentIntent = () => {
+  const { user } = useAuth(); // Assuming useAuth provides user object with id
+
+  return useMutation({
+    mutationFn: () => {
+      if (!user?.id) {
+        throw new Error('User ID is required');
+      }
+      return apiClient.post<PaymentIntentResponse>(`/payment/create-intent/${user.id}`);
+    },
+    onSuccess: (data: AxiosResponse<PaymentIntentResponse>) => {
+      // Return the response data (clientSecret and transaction)
+      return data.data;
+    },
+    onError: (error: AxiosError) => {
+      console.error('Failed to create payment intent:', error);
+      // Replace alert with a toast notification for better UX
+      alert('Failed to create payment intent. Please try again.');
+    },
+  });
+};

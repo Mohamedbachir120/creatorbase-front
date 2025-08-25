@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect, type FC } from 'react';
-import { useUserProfile } from '../hooks/useUser';
+import { useCreatePaymentIntent, useUserProfile } from '../hooks/useUser';
 import { useAuth } from '../context/AuthContext';
 import { useRegions, type Region } from '../hooks/useRegions';
 // Import the search hook and Creator type
 import { useRecordVisit, useSearchCreators, type Creator } from '../hooks/useContentCreator';
 import { CheckIcon } from './Pricing';
 import { FaInstagram, FaYoutube, FaTiktok, FaTimes, FaEnvelope, FaBars, FaUsers } from 'react-icons/fa';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 // --- Type Definitions ---
 
@@ -13,6 +15,15 @@ type NavLink = {
     name: string;
     iconPath: string;
 };
+const features = [
+    "Accès à tous les influenceurs",
+    "Recherches illimitées",
+    "Analyses avancées",
+    "Outils de gestion de campagne",
+    "Support par e-mail prioritaire",
+];
+
+const stripePromise = loadStripe('pk_test_51Rki8VP0XFOMw1y33mFVSXbwlsKsm4nPgsGZNDbg4wUCvc5e2b6LA8bLXvnD2LUu9XwY33Y2fyNqpzcDszdJFZ0T00yFkyB9oV'); // Replace with your actual Stripe publishable key
 
 // This type can now be removed if Creator is used everywhere, but we keep it for other components
 interface Influencer {
@@ -423,55 +434,171 @@ const ComingSoonContent: FC = () => (
         </div>
     </main>
 );
-const features = [
-    "Accès à tous les influenceurs",
-    "Recherches illimitées",
-    "Analyses avancées",
-    "Outils de gestion de campagne",
-    "Support par e-mail prioritaire",
-];
 
-const PricingContent: FC = () => {
-    // ... (no changes)
-    const { data } = useUserProfile();
-    return (<main className="flex-1 overflow-y-auto p-4 md:p-8 flex items-center justify-center">
-        <div className="w-full max-w-md">
-            {/* Pricing Card */}
-            <div className="flex w-full flex-col gap-6 rounded-lg border-2 border-[#f47b25] bg-[#1a1a1a] p-6 md:p-8">
-                <div className="flex-grow">
-                    <div className="text-center">
-                        <h3 className="text-2xl md:text-3xl font-semibold text-white">Accès à vie</h3>
-                        <p className="mt-2 flex items-baseline justify-center gap-2">
-                            <span className="text-5xl md:text-6xl font-bold tracking-tight text-white">€49.90</span>
-                        </p>
-                        <p className="text-base md:text-lg text-[#a3a3a3]">Paiement unique</p>
-                    </div>
-                    <ul className="mt-8 space-y-4 text-left">
-                        {features.map((feature, index) => (
-                            <li key={index} className="flex items-start gap-3">
-                                <CheckIcon color='#f47b25' />
-                                <span className="text-white">{feature}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                {
-                    !data?.hasPaid && (<button className="flex min-w-[84px] items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-[#f47b25] text-black text-base font-bold transition-transform hover:scale-105 w-full mt-8">
-                        Obtenez l'accès maintenant
-                    </button>)
-
-                }
-                {
-                    data?.hasPaid && (<button className="flex min-w-[84px] items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-green-600 text-white text-base font-bold transition-transform hover:scale-105 w-full mt-8">
-                        <CheckIcon color='white' />  Déjà activé
-                    </button>)
-
-                }
+ 
+const PaymentForm: FC = () => {
+    const stripe = useStripe();
+    const elements = useElements();
+    const { user } = useAuth();
+    const { mutate: createPaymentIntent, isPending, data, error } = useCreatePaymentIntent();
+    const [paymentError, setPaymentError] = useState<string | null>(null);
+    const [paymentSuccess, setPaymentSuccess] = useState<boolean>(false);
+  
+    // Handle payment intent creation
+    const handleCreateIntent = async () => {
+      if (!user?.id) {
+        setPaymentError('Utilisateur non authentifié');
+        return;
+      }
+      createPaymentIntent();
+    };
+  
+    // Handle payment submission
+    const handleSubmit = async (event: React.FormEvent) => {
+      event.preventDefault();
+  
+      if (!stripe || !elements || !data?.data.clientSecret) {
+        setPaymentError('Stripe ou l\'intention de paiement n\'est pas initialisé');
+        return;
+      }
+  
+      const cardElement = elements.getElement(CardElement);
+      if (!cardElement) {
+        setPaymentError('Élément de carte non trouvé');
+        return;
+      }
+  
+      try {
+        const { error, paymentIntent } = await stripe.confirmCardPayment(data.data.clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              email: user?.email ?? '', // Fallback to empty string if email is undefined
+            },
+          },
+        });
+  
+        if (error) {
+          setPaymentError(error.message || 'Échec du paiement');
+          return;
+        }
+  
+        if (paymentIntent?.status === 'succeeded') {
+          setPaymentSuccess(true);
+          // Optionally notify backend to update transaction status
+          // You can add a mutation here to call a `/payment/confirm` endpoint
+        }
+      } catch (err) {
+        setPaymentError('Une erreur est survenue lors du traitement du paiement');
+        console.error(err);
+      }
+    };
+  
+    return (
+      <div className="mt-6">
+        {!data?.data.clientSecret && (
+          <button
+            onClick={handleCreateIntent}
+            disabled={isPending || !user?.id}
+            className="w-full py-3 px-6 rounded-lg text-base font-semibold bg-[#f97316] text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? 'Création de l\'intention de paiement...' : 'Démarrer le paiement'}
+          </button>
+        )}
+        {error && <p className="text-red-500 text-sm mt-2">{error.message}</p>}
+        {data?.data.clientSecret && (
+          <form onSubmit={handleSubmit} className="mt-4">
+            <div className="bg-[#1a1a1a] border border-[#374151] rounded-lg p-4">
+              <CardElement
+                options={{
+                  style: {
+                    base: {
+                      fontSize: '16px',
+                      color: '#ffffff',
+                      '::placeholder': {
+                        color: '#9ca3af',
+                      },
+                    },
+                    invalid: {
+                      color: '#f97316',
+                    },
+                  },
+                }}
+              />
             </div>
-        </div>
-    </main>
+            <button
+              type="submit"
+              disabled={!stripe || isPending}
+              className="w-full mt-4 py-3 px-6 rounded-lg text-base font-semibold bg-[#f97316] text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPending ? 'Traitement...' : 'Payer €49.90'}
+            </button>
+          </form>
+        )}
+        {paymentError && <p className="text-red-500 text-sm mt-2">{paymentError}</p>}
+        {paymentSuccess && (
+          <p className="text-green-500 text-sm mt-2">Paiement effectué avec succès !</p>
+        )}
+      </div>
     );
-}
+  };
+  
+  // PaymentFormWrapper to provide Stripe context
+  const PaymentFormWrapper: FC = () => {
+    return (
+      <Elements stripe={stripePromise}>
+        <PaymentForm />
+      </Elements>
+    );
+  };
+  
+// PricingContent component
+const PricingContent: FC = () => {
+    const { data } = useUserProfile();
+    const [showPaymentForm, setShowPaymentForm] = useState(false);
+  
+    return (
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 flex items-center justify-center">
+        <div className="w-full max-w-md">
+          {/* Pricing Card */}
+          <div className="flex w-full flex-col gap-6 rounded-lg border-2 border-[#f47b25] bg-[#1a1a1a] p-6 md:p-8">
+            <div className="flex-grow">
+              <div className="text-center">
+                <h3 className="text-2xl md:text-3xl font-semibold text-white">Accès à vie</h3>
+                <p className="mt-2 flex items-baseline justify-center gap-2">
+                  <span className="text-5xl md:text-6xl font-bold tracking-tight text-white">€49.90</span>
+                </p>
+                <p className="text-base md:text-lg text-[#a3a3a3]">Paiement unique</p>
+              </div>
+              <ul className="mt-8 space-y-4 text-left">
+                {features.map((feature, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <CheckIcon color="#f47b25" />
+                    <span className="text-white">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {!data?.hasPaid && !showPaymentForm && (
+              <button
+                onClick={() => setShowPaymentForm(true)}
+                className="flex min-w-[84px] items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-[#f47b25] text-black text-base font-bold transition-transform hover:scale-105 w-full mt-8"
+              >
+                Obtenez l'accès maintenant
+              </button>
+            )}
+            {!data?.hasPaid && showPaymentForm && <PaymentFormWrapper />}
+            {data?.hasPaid && (
+              <button className="flex min-w-[84px] items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-green-600 text-white text-base font-bold transition-transform hover:scale-105 w-full mt-8">
+                <CheckIcon color="white" /> Déjà activé
+              </button>
+            )}
+          </div>
+        </div>
+      </main>
+    );
+  };
+  
 
 const formatFollowers = (followers: number): string => {
     if (followers >= 1000000) {
