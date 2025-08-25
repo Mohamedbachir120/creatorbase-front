@@ -551,13 +551,13 @@ const PaymentForm: FC = () => {
               }}
             />
           </div>
-          <button
+         {!paymentSuccess &&  <button
             type="submit"
             disabled={!stripe || isPending}
             className="w-full mt-4 py-3 px-6 rounded-lg text-base font-semibold bg-[#f97316] text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isPending ? 'Traitement...' : 'Payer €49.90'}
-          </button>
+          </button> }
         </form>
       )}
       {paymentError && <p className="text-red-500 text-sm mt-2">{paymentError}</p>}
