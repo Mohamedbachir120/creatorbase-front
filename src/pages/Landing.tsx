@@ -55,12 +55,12 @@ export const Header: FC = () => {
             <a href="/" className="flex items-center gap-3" aria-label="InfluenceContact Home">
               <div className="flex-shrink-0">
                 <svg className="h-8 w-8 text-[#f97316]" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" fill="currentColor"></path>
+                  <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" fill="currentColor"></path>
                 </svg>
               </div>
               <h2 className="text-xl font-bold font-montserrat">InfluenceContact</h2>
             </a>
-            
+
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
               <a className="text-neutral-100 hover:text-[#f97316] transition-colors" href="/home">Accueil</a>
@@ -76,10 +76,10 @@ export const Header: FC = () => {
               {!isLoading && isAuthenticated &&
                 <a className="hidden sm:inline-block rounded-md bg-[#f97316] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90" href="/dashboard">Dashboard</a>
               }
-              
+
               {/* Mobile Menu Button */}
-              <button 
-                onClick={() => setIsMenuOpen(!isMenuOpen)} 
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="md:hidden text-neutral-100 z-50 p-2 -mr-2"
                 aria-controls="mobile-menu"
                 aria-expanded={isMenuOpen}
@@ -93,7 +93,7 @@ export const Header: FC = () => {
       </header>
 
       {/* Mobile Menu Overlay */}
-      <div 
+      <div
         id="mobile-menu"
         className={`fixed inset-0 z-40 bg-neutral-900/95 backdrop-blur-md md:hidden transition-opacity duration-300 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
       >
@@ -102,15 +102,15 @@ export const Header: FC = () => {
           <a onClick={() => setIsMenuOpen(false)} className="text-neutral-100 hover:text-[#f97316] transition-colors" href="#">Fonctionnalités</a>
           <a onClick={() => setIsMenuOpen(false)} className="text-neutral-100 hover:text-[#f97316] transition-colors" href="/pricing">Tarifs</a>
           <a onClick={() => setIsMenuOpen(false)} className="text-neutral-100 hover:text-[#f97316] transition-colors" href="#">Contact</a>
-            {/* Login/Dashboard button for mobile menu */}
-            <div className="mt-4">
-                {!isLoading && !isAuthenticated &&
-                    <a className="inline-block rounded-md bg-[#f97316] px-6 py-3 text-lg font-medium text-white transition-opacity hover:opacity-90" href="/login">Connexion</a>
-                }
-                {!isLoading && isAuthenticated &&
-                    <a className="inline-block rounded-md bg-[#f97316] px-6 py-3 text-lg font-medium text-white transition-opacity hover:opacity-90" href="/dashboard">Dashboard</a>
-                }
-            </div>
+          {/* Login/Dashboard button for mobile menu */}
+          <div className="mt-4">
+            {!isLoading && !isAuthenticated &&
+              <a className="inline-block rounded-md bg-[#f97316] px-6 py-3 text-lg font-medium text-white transition-opacity hover:opacity-90" href="/login">Connexion</a>
+            }
+            {!isLoading && isAuthenticated &&
+              <a className="inline-block rounded-md bg-[#f97316] px-6 py-3 text-lg font-medium text-white transition-opacity hover:opacity-90" href="/dashboard">Dashboard</a>
+            }
+          </div>
         </nav>
       </div>
     </>
@@ -126,13 +126,13 @@ export const Hero = () => {
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-white drop-shadow-lg font-montserrat">
           Accédez aux meilleurs influenceurs de votre secteur
         </h1>
-        <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-neutral-100/90 drop-shadow-md">
+        <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-neutral-100/90 drop-shadow-md hidden md:block">
           Notre plateforme donne accès à une base de données complète d'influenceurs, vous permettant de trouver le partenaire idéal pour votre marque et vos objectifs de campagne.
         </p>
         <div className="mt-8 flex justify-center">
-          <button className="inline-flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-gradient-to-r from-[#f97316] to-[#ea580c] text-neutral-900 text-sm sm:text-base font-bold tracking-wide transition-all transform hover:scale-105">
+          <a className="inline-flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-gradient-to-r from-[#f97316] to-[#ea580c] text-neutral-900 text-sm sm:text-base font-bold tracking-wide transition-all transform hover:scale-105" href='/pricing'>
             <span>Découvrir les influenceurs</span>
-          </button>
+          </a>
         </div>
         <div className="mt-12 lg:mt-16 pb-16 md:pb-20">
           <div className="inline-block bg-neutral-800/50 backdrop-blur-sm rounded-lg px-4 py-3 sm:px-6 sm:py-4">
@@ -161,28 +161,28 @@ export const Features = () => {
           <div className="bg-neutral-700/50 rounded-xl p-6 flex flex-col items-center text-center transform hover:-translate-y-2 transition-transform duration-300">
             <div className="bg-gradient-to-br from-[#f97316] to-[#ea580c] p-3 rounded-full inline-flex">
               {/* Using inline SVG for better performance and reliability */}
-              <svg className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7V4H20V7L12 11L4 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M4 11V20H20V11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7V4H20V7L12 11L4 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M4 11V20H20V11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </div>
             <h3 className="mt-4 text-xl font-bold text-white font-montserrat">Base de données complète</h3>
             <p className="mt-2 text-sm text-neutral-400">Accédez à une vaste base de données de plus de 600 000 influenceurs dans divers secteurs et niches.</p>
           </div>
           <div className="bg-neutral-700/50 rounded-xl p-6 flex flex-col items-center text-center transform hover:-translate-y-2 transition-transform duration-300">
             <div className="bg-gradient-to-br from-[#f97316] to-[#ea580c] p-3 rounded-full inline-flex">
-              <svg className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" strokeWidth="2"/><path d="M12 8V12L15 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" strokeWidth="2" /><path d="M12 8V12L15 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </div>
             <h3 className="mt-4 text-xl font-bold text-white font-montserrat">Analyses avancées</h3>
             <p className="mt-2 text-sm text-neutral-400">Obtenez des informations sur les performances des influenceurs, les données démographiques de l'audience et les métriques d'engagement.</p>
           </div>
           <div className="bg-neutral-700/50 rounded-xl p-6 flex flex-col items-center text-center transform hover:-translate-y-2 transition-transform duration-300">
-             <div className="bg-gradient-to-br from-[#f97316] to-[#ea580c] p-3 rounded-full inline-flex">
-              <svg className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 21V14M4 10V3M12 21V12M12 8V3M20 21V16M20 12V3M1 14H7M9 8H15M17 16H23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <div className="bg-gradient-to-br from-[#f97316] to-[#ea580c] p-3 rounded-full inline-flex">
+              <svg className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 21V14M4 10V3M12 21V12M12 8V3M20 21V16M20 12V3M1 14H7M9 8H15M17 16H23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </div>
             <h3 className="mt-4 text-xl font-bold text-white font-montserrat">Filtres intelligents</h3>
             <p className="mt-2 text-sm text-neutral-400">Filtrez les influenceurs en fonction de critères tels que la taille de l'audience, le taux d'engagement, l'emplacement, et plus encore.</p>
           </div>
           <div className="bg-neutral-700/50 rounded-xl p-6 flex flex-col items-center text-center transform hover:-translate-y-2 transition-transform duration-300">
             <div className="bg-gradient-to-br from-[#f97316] to-[#ea580c] p-3 rounded-full inline-flex">
-              <svg className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15V13C21 10.7909 19.2091 9 17 9H15L14 7H10L9 9H7C4.79086 9 3 10.7909 3 13V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 12L14 10M12 12L10 14M12 12L14 14M12 12L10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15V13C21 10.7909 19.2091 9 17 9H15L14 7H10L9 9H7C4.79086 9 3 10.7909 3 13V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M12 12L14 10M12 12L10 14M12 12L14 14M12 12L10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </div>
             <h3 className="mt-4 text-xl font-bold text-white font-montserrat">Gestion de campagnes</h3>
             <p className="mt-2 text-sm text-neutral-400">Gérez vos campagnes du début à la fin, y compris la prise de contact, l'approbation du contenu et le suivi.</p>

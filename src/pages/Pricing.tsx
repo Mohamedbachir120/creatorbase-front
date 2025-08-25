@@ -146,9 +146,9 @@ const PricingSection: FC = () => {
             ))}
           </ul>
         </div>
-        <button className="flex min-w-[84px] items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-[#f47b25] text-black text-base font-bold transition-transform hover:scale-105 w-full mt-4 sm:mt-8">
+        <a href='/dashboard' className="flex min-w-[84px] items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-[#f47b25] text-black text-base font-bold transition-transform hover:scale-105 w-full mt-4 sm:mt-8">
           Obtenir l'Accès Maintenant
-        </button>
+        </a>
       </div>
     </section>
   );

@@ -33,7 +33,7 @@ function App() {
 
 
             {/* Add a default route */}
-            <Route path="/" element={<PrivateRoute><LandingPage /></PrivateRoute>} />
+            <Route path="/" element={<LandingPage />} />
           </Routes>
         </Router>
       </AuthProvider>
