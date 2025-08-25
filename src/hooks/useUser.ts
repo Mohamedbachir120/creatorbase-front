@@ -18,6 +18,7 @@ interface ContentCreator {
     flag: string;
   };
   youtube?: string;
+  followers?: number | null;
 }
 
 // Define the VisitedProfile interface

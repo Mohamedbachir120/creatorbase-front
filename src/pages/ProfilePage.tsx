@@ -5,7 +5,7 @@ import { useRegions, type Region } from '../hooks/useRegions';
 // Import the search hook and Creator type
 import { useRecordVisit, useSearchCreators, type Creator } from '../hooks/useContentCreator';
 import { CheckIcon } from './Pricing';
-import { FaInstagram, FaYoutube, FaTiktok, FaTimes, FaEnvelope, FaBars } from 'react-icons/fa';
+import { FaInstagram, FaYoutube, FaTiktok, FaTimes, FaEnvelope, FaBars, FaUsers } from 'react-icons/fa';
 
 // --- Type Definitions ---
 
@@ -24,8 +24,9 @@ interface Influencer {
     youtube?: string | null;
     tiktok?: string | null;
     email?: string;
-  }
-  
+    followers?: number | null;
+}
+
 
 // --- Prop Types ---
 
@@ -42,13 +43,13 @@ type NavIconProps = {
 interface StatCardProps {
     title: string;
     value: string | number;
-  }
-  
-  // Define the InfluencerCard props (assumed structure)
-interface InfluencerCardProps extends Influencer {
-key: string;
 }
- 
+
+// Define the InfluencerCard props (assumed structure)
+interface InfluencerCardProps extends Influencer {
+    key: string;
+}
+
 
 // --- SVG Icon Components (no changes) ---
 const LogoIcon: FC = () => (
@@ -79,9 +80,8 @@ const Sidebar: FC<SidebarProps> = ({ activePage, onNavigate, isOpen, onToggle })
         <>
             {/* Sidebar for Desktop and Mobile */}
             <aside
-                className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#000000] border-r border-[#374151] transition-transform duration-300 transform ${
-                    isOpen ? 'translate-x-0' : '-translate-x-full'
-                } md:translate-x-0 md:static md:flex md:flex-col p-6`}
+                className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#000000] border-r border-[#374151] transition-transform duration-300 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'
+                    } md:translate-x-0 md:static md:flex md:flex-col p-6`}
             >
                 <div className="flex items-center gap-3 text-[#ffffff] mb-10">
                     <LogoIcon />
@@ -99,9 +99,8 @@ const Sidebar: FC<SidebarProps> = ({ activePage, onNavigate, isOpen, onToggle })
                                     onToggle();
                                 }
                             }}
-                            className={`flex items-center text-left w-full gap-3 px-4 py-2.5 text-[#9ca3af] rounded-lg hover:bg-[#1a1a1a] hover:text-[#ffffff] transition-colors duration-200 ${
-                                link.name === activePage ? 'bg-[#1a1a1a] text-[#ffffff] font-semibold' : ''
-                            }`}
+                            className={`flex items-center text-left w-full gap-3 px-4 py-2.5 text-[#9ca3af] rounded-lg hover:bg-[#1a1a1a] hover:text-[#ffffff] transition-colors duration-200 ${link.name === activePage ? 'bg-[#1a1a1a] text-[#ffffff] font-semibold' : ''
+                                }`}
                         >
                             <NavIcon path={link.iconPath} />
                             <span>{link.name}</span>
@@ -156,8 +155,8 @@ const Header: FC<{ title: string; onToggleSidebar: () => void }> = ({ title, onT
                 <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">{title}</h1>
             </div>
             <div className="flex items-center gap-3 md:gap-6">
-                 {/* Search bar moves here for better mobile layout */}
-                 <div className="hidden md:relative md:w-64">
+                {/* Search bar moves here for better mobile layout */}
+                <div className="hidden md:relative md:w-64">
                     <input
                         className="w-full rounded-lg border-0 bg-[#1a1a1a] py-2 pl-10 pr-4 text-sm text-[#ffffff] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f97316]"
                         placeholder="Rechercher..."
@@ -195,7 +194,7 @@ const Header: FC<{ title: string; onToggleSidebar: () => void }> = ({ title, onT
                             className="h-10 w-10 rounded-full object-cover"
                             src={`https://ui-avatars.com/api/?format=svg&name=${user?.firstName?.charAt(0) ?? "A"}&background=f97316&color=ffffff`}
                         />
-                         <div className="hidden md:block text-left text-sm">
+                        <div className="hidden md:block text-left text-sm">
                             <div className="font-semibold text-[#ffffff]">{user?.firstName}</div>
                             <div className="text-xs uppercase text-[#9ca3af]">{user ? "activé" : "désactivé"}</div>
                         </div>
@@ -220,110 +219,111 @@ const Header: FC<{ title: string; onToggleSidebar: () => void }> = ({ title, onT
 
 const DashboardContent: FC = () => {
     const { data: userProfile, isLoading, error } = useUserProfile();
-  
+
     // Fallback data if loading or error
     const isDataAvailable = !isLoading && !error && userProfile;
-  
+
     // Map visitedProfiles to Influencer format for "Recommended For You"
     const recommendedInfluencers: Influencer[] = isDataAvailable
-      ? userProfile.visitedProfiles.map((profile) => ({
-          id: profile.creator.id,
-          name: profile.creator.nickname || profile.creator.username || 'Inconnu',
-          category: `${profile.creator.region?.flag} ${profile.creator.region?.countryName}`   || 'Monde', // Fallback to region or static value
-          imageUrl: undefined, // Image not provided by backend, set to undefined or use a placeholder
-          instagram: profile.creator.instagram,
-          youtube: profile.creator.youtube,
-          tiktok: null, // Not provided by backend
-          email: undefined, // Not provided by backend
+        ? userProfile.visitedProfiles.map((profile) => ({
+            id: profile.creator.id,
+            name: profile.creator.nickname || profile.creator.username || 'Inconnu',
+            category: `${profile.creator.region?.flag} ${profile.creator.region?.countryName}` || 'Monde', // Fallback to region or static value
+            imageUrl: undefined, // Image not provided by backend, set to undefined or use a placeholder
+            instagram: profile.creator.instagram,
+            youtube: profile.creator.youtube,
+            tiktok: null, // Not provided by backend
+            email: undefined, // Not provided by backend
+            followers: profile.creator.followers,
         }))
-      : [];
-  
+        : [];
+
     // Map searchHistory to Recent Activity format
     const recentActivities = isDataAvailable
-      ? userProfile.searchHistory.slice(0, 5).map((search) => ({
-          id: search.id,
-          description: `Recherche de "${search.keyword || 'N/A'}" dans ${search.country || 'N/A'}`,
-          timestamp: new Date(search.createdAt).toLocaleDateString(),
+        ? userProfile.searchHistory.slice(0, 5).map((search) => ({
+            id: search.id,
+            description: `Recherche de "${search.keyword || 'N/A'}" dans ${search.country || 'N/A'}`,
+            timestamp: new Date(search.createdAt).toLocaleDateString(),
         }))
-      : [];
-  
-    return (
-      <main className="flex-1 overflow-y-auto p-4 md:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <section>
-              <h2 className="text-xl md:text-2xl font-bold text-white mb-4">
-                Bonjour, {isDataAvailable ? userProfile.firstName : 'Utilisateur'}!
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <StatCard
-                  title="Influenceurs sauvegardés"
-                  value={isDataAvailable ? userProfile.totalVisitsCount : 0}
-                />
-                <StatCard title="Campagnes actives" value={3} /> {/* Static, as no backend data */}
-                <StatCard
-                  title="Recherches mensuelles"
-                  value={isDataAvailable ? userProfile.totalSearchCount : 0}
-                />
-              </div>
-            </section>
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white">Récemment visités</h2>
-                <a className="text-sm font-semibold text-[#f97316] hover:underline" href="#">
-                  Voir tout
-                </a>
-              </div>
-              {isLoading ? (
-                <p className="text-white">Chargement des influenceurs...</p>
-              ) : error ? (
-                <p className="text-red-500">Erreur lors du chargement des influenceurs. Veuillez réessayer.</p>
-              ) : recommendedInfluencers.length === 0 ? (
-                <p className="text-white">Aucun influenceur récemment visité.</p>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                  {recommendedInfluencers.map((inf) => (
-                    <InfluencerCard
-                      key={inf.id}
-                      id={inf.id}
-                      name={inf.name}
-                      category={inf.category}
-                      imageUrl={`https://ui-avatars.com/api/?format=svg&name=${encodeURIComponent(inf.name)}&background=2a2a2a&color=ffffff`}
+        : [];
 
-                      instagram={inf.instagram}
-                      youtube={inf.youtube}
-                      tiktok={inf.tiktok}
-                      email={inf.email}
-                    />
-                  ))}
+    return (
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 space-y-8">
+                    <section>
+                        <h2 className="text-xl md:text-2xl font-bold text-white mb-4">
+                            Bonjour, {isDataAvailable ? userProfile.firstName : 'Utilisateur'}!
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <StatCard
+                                title="Influenceurs sauvegardés"
+                                value={isDataAvailable ? userProfile.totalVisitsCount : 0}
+                            />
+                            <StatCard title="Campagnes actives" value={3} /> {/* Static, as no backend data */}
+                            <StatCard
+                                title="Recherches mensuelles"
+                                value={isDataAvailable ? userProfile.totalSearchCount : 0}
+                            />
+                        </div>
+                    </section>
+                    <section>
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white">Récemment visités</h2>
+                            <a className="text-sm font-semibold text-[#f97316] hover:underline" href="#">
+                                Voir tout
+                            </a>
+                        </div>
+                        {isLoading ? (
+                            <p className="text-white">Chargement des influenceurs...</p>
+                        ) : error ? (
+                            <p className="text-red-500">Erreur lors du chargement des influenceurs. Veuillez réessayer.</p>
+                        ) : recommendedInfluencers.length === 0 ? (
+                            <p className="text-white">Aucun influenceur récemment visité.</p>
+                        ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                                {recommendedInfluencers.map((inf) => (
+                                    <InfluencerCard
+                                        key={inf.id}
+                                        id={inf.id}
+                                        name={inf.name}
+                                        category={inf.category}
+                                        imageUrl={`https://ui-avatars.com/api/?format=svg&name=${encodeURIComponent(inf.name)}&background=2a2a2a&color=ffffff`}
+                                        followers={inf.followers}
+                                        instagram={inf.instagram}
+                                        youtube={inf.youtube}
+                                        tiktok={inf.tiktok}
+                                        email={inf.email}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </section>
                 </div>
-              )}
-            </section>
-          </div>
-          <div className="lg:col-span-1 space-y-8">
-            <section>
-              <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white mb-4">Activité Récente</h2>
-              {isLoading ? (
-                <p className="text-white">Chargement des activités...</p>
-              ) : error ? (
-                <p className="text-red-500">Erreur lors du chargement des activités. Veuillez réessayer.</p>
-              ) : recentActivities.length === 0 ? (
-                <p className="text-white">Aucune activité récente.</p>
-              ) : (
-                <ul className="space-y-4">
-                  {recentActivities.map((activity) => (
-                    <li key={activity.id} className="text-white text-sm md:text-base">
-                      {activity.description} - {activity.timestamp}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </div>
-        </div>
-      </main>
+                <div className="lg:col-span-1 space-y-8">
+                    <section>
+                        <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white mb-4">Activité Récente</h2>
+                        {isLoading ? (
+                            <p className="text-white">Chargement des activités...</p>
+                        ) : error ? (
+                            <p className="text-red-500">Erreur lors du chargement des activités. Veuillez réessayer.</p>
+                        ) : recentActivities.length === 0 ? (
+                            <p className="text-white">Aucune activité récente.</p>
+                        ) : (
+                            <ul className="space-y-4">
+                                {recentActivities.map((activity) => (
+                                    <li key={activity.id} className="text-white text-sm md:text-base">
+                                        {activity.description} - {activity.timestamp}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </section>
+                </div>
+            </div>
+        </main>
     );
-  };
+};
 
 const DatabaseContent: FC = () => {
     const [keyword, setKeyword] = useState<string>('');
@@ -395,15 +395,16 @@ const DatabaseContent: FC = () => {
                                     <InfluencerCard
 
                                         key={creator.id}
-                                        id={creator.id} 
+                                        id={creator.id}
                                         name={creatorName}
-                                        category={creator.region.flag+" " +creator.region.countryName}
+                                        category={creator.region.flag + " " + creator.region.countryName}
                                         imageUrl={`https://ui-avatars.com/api/?format=svg&name=${encodeURIComponent(creatorName)}&background=2a2a2a&color=ffffff`}
                                         instagram={creator.instagram}
                                         youtube={creator.youtube}
                                         tiktok={creator.profileLink}
                                         email={creator.email ?? undefined}
-                                        />
+                                        followers={creator.followers ?? undefined}
+                                    />
                                 );
                             })}
                         </>
@@ -472,146 +473,165 @@ const PricingContent: FC = () => {
     );
 }
 
-const InfluencerCard: FC<InfluencerCardProps> = ({ id, name, email, category, imageUrl, instagram, tiktok, youtube }) => {
-    // Assuming useRecordVisit is a custom hook you have
-    const { mutate: recordVisit } = useRecordVisit(); 
-   
+const formatFollowers = (followers: number): string => {
+    if (followers >= 1000000) {
+        return `${(followers / 1000000).toFixed(1)}M`;
+    } else if (followers >= 1000) {
+        return `${(followers / 1000).toFixed(1)}K`;
+    }
+    return followers.toString();
+};
+
+const InfluencerCard: FC<InfluencerCardProps> = ({ id, name, followers, email, category, imageUrl, instagram, tiktok, youtube }) => {
+    const { mutate: recordVisit } = useRecordVisit();
     const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
     const handleCardClick = () => {
-      recordVisit(id);
-      setIsModalOpen(true);
+        recordVisit(id);
+        setIsModalOpen(true);
     };
-  
+
     const closeModal = () => {
-      setIsModalOpen(false);
+        setIsModalOpen(false);
     };
-  
+
     return (
-      <>
-        {/* --- Influencer Card (No changes here) --- */}
-        <div
-          className="p-4 rounded-xl border border-gray-800 hover:border-orange-500 transition-all duration-300 cursor-pointer group"
-          onClick={handleCardClick}
-        >
-          <div className="w-full aspect-square overflow-hidden rounded-lg mb-3">
-            <div 
-              className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-300" 
-              style={{ backgroundImage: `url("${imageUrl}")` }}
-            ></div>
-          </div>
-          <h3 className="font-semibold truncate text-white">{name}</h3>
-          <p className="text-sm text-gray-400 mb-3">{category}</p>
-          <div className="flex space-x-3">
-            {instagram && (
-              <a
-                href={instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="bg-gray-800 rounded-full p-2">
-                  <FaInstagram className="w-5 h-5" />
-                </div>
-              </a>
-            )}
-            {tiktok && (
-              <a
-                href={tiktok}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="bg-gray-800 rounded-full p-2">
-                  <FaTiktok className="w-5 h-5" />
-                </div>
-              </a>
-            )}
-            {youtube && (
-              <a
-                href={youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="bg-gray-800 rounded-full p-2">
-                  <FaYoutube className="w-5 h-5" />
-                </div>
-              </a>
-            )}
-          </div>
-        </div>
-  
-        {/* --- Improved Modal --- */}
-        {isModalOpen && (
-          <div
-            // Backdrop with blur effect and fade-in animation
-            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 animate-fadeIn"
-            onClick={closeModal}
-          >
+        <>
+            {/* --- Influencer Card --- */}
             <div
-              // Modal container with improved styling and animation
-              className="bg-[#121212] border border-gray-700 rounded-2xl shadow-2xl max-w-sm w-full relative transform transition-all duration-300 animate-scaleUp"
-              onClick={(e) => e.stopPropagation()}
+                className="p-4 rounded-xl border border-gray-800 hover:border-orange-500 transition-all duration-300 cursor-pointer group"
+                onClick={handleCardClick}
             >
-              {/* --- Close Button --- */}
-              <button
-                onClick={closeModal}
-                className="absolute top-3 right-3 text-gray-500 hover:text-white transition-colors z-10"
-                aria-label="Fermer la modale"
-              >
-                <FaTimes className="w-6 h-6" />
-              </button>
-              
-              {/* --- Modal Content --- */}
-              <div className="p-6 md:p-8 text-center">
-                {/* --- Profile Image --- */}
-                <div className="w-24 h-24 md:w-32 md:h-32 mx-auto rounded-full mb-5 border-4 border-gray-700 overflow-hidden">
-                  <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+                <div className="w-full aspect-square overflow-hidden rounded-lg mb-3">
+                    <div
+                        className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-300"
+                        style={{ backgroundImage: `url("${imageUrl}")` }}
+                    ></div>
                 </div>
-  
-                {/* --- Influencer Info --- */}
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">{name}</h2>
-                <p className="text-base md:text-md text-orange-500 font-medium mb-6">{category}</p>
-                
-                {/* --- Social Links --- */}
-                <div className="flex justify-center space-x-5 mb-8">
-                  {instagram && (
-                    <a href={instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#d62976] transition-colors" aria-label="Instagram">
-                      <FaInstagram className="w-7 h-7 md:w-8 md:h-8" />
-                    </a>
-                  )}
-                  {tiktok && (
-                    <a href={tiktok} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#00f2ea] transition-colors" aria-label="TikTok">
-                      <FaTiktok className="w-7 h-7 md:w-8 md:h-8" />
-                    </a>
-                  )}
-                  {youtube && (
-                    <a href={youtube} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#ff0000] transition-colors" aria-label="YouTube">
-                      <FaYoutube className="w-7 h-7 md:w-8 md:h-8" />
-                    </a>
-                  )}
+                <h3 className="font-semibold truncate text-white">{name}</h3>
+                <p className="text-sm text-gray-400">{category}</p>
+                {
+                    followers !== undefined && followers !== null &&
+                    <div className="flex items-center text-sm text-gray-500 mt-1 mb-3">
+                        <FaUsers className="mr-1 w-4 h-4" />
+                        <span>{formatFollowers(followers)} followers</span>
+                    </div>
+                }
+                <div className="flex space-x-3">
+                    {instagram && (
+                        <a
+                            href={instagram}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-400 hover:text-white transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="bg-gray-800 rounded-full p-2">
+                                <FaInstagram className="w-5 h-5" />
+                            </div>
+                        </a>
+                    )}
+                    {tiktok && (
+                        <a
+                            href={tiktok}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-400 hover:text-white transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="bg-gray-800 rounded-full p-2">
+                                <FaTiktok className="w-5 h-5" />
+                            </div>
+                        </a>
+                    )}
+                    {youtube && (
+                        <a
+                            href={youtube}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-400 hover:text-white transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="bg-gray-800 rounded-full p-2">
+                                <FaYoutube className="w-5 h-5" />
+                            </div>
+                        </a>
+                    )}
                 </div>
-                
-                {/* --- Call to Action Button --- */}
-                <a 
-                  href={`mailto:${email}`}
-                  className="w-full inline-flex items-center justify-center bg-[#f97316] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#e55f12] transition-colors"
-                >
-                  <FaEnvelope className="mr-2" />
-                  Contacter
-                </a>
-              </div>
             </div>
-          </div>
-        )}
-      </>
+
+            {/* --- Improved Modal --- */}
+            {isModalOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 animate-fadeIn"
+                    onClick={closeModal}
+                >
+                    <div
+                        className="bg-[#121212] border border-gray-700 rounded-2xl shadow-2xl max-w-sm w-full relative transform transition-all duration-300 animate-scaleUp"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* --- Close Button --- */}
+                        <button
+                            onClick={closeModal}
+                            className="absolute top-3 right-3 text-gray-500 hover:text-white transition-colors z-10"
+                            aria-label="Close modal"
+                        >
+                            <FaTimes className="w-6 h-6" />
+                        </button>
+
+                        {/* --- Modal Content --- */}
+                        <div className="p-6 md:p-8 text-center">
+                            {/* --- Profile Image --- */}
+                            <div className="w-24 h-24 md:w-32 md:h-32 mx-auto rounded-full mb-5 border-4 border-gray-700 overflow-hidden">
+                                <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+                            </div>
+
+                            {/* --- Influencer Info --- */}
+                            <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">{name}</h2>
+                            <p className="text-base md:text-md text-orange-500 font-medium">{category}</p>
+                            {
+
+                                followers != null && followers != undefined && <div className="flex items-center justify-center text-base text-gray-400 mt-1 mb-6">
+                                    <FaUsers className="mr-2 w-5 h-5" />
+                                    <span>{formatFollowers(followers)} followers</span>
+                                </div>
+                            }
+
+                            {/* --- Social Links --- */}
+                            <div className="flex justify-center space-x-5 mb-8">
+                                {instagram && (
+                                    <a href={instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#d62976] transition-colors" aria-label="Instagram">
+                                        <FaInstagram className="w-7 h-7 md:w-8 md:h-8" />
+                                    </a>
+                                )}
+                                {tiktok && (
+                                    <a href={tiktok} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#00f2ea] transition-colors" aria-label="TikTok">
+                                        <FaTiktok className="w-7 h-7 md:w-8 md:h-8" />
+                                    </a>
+                                )}
+                                {youtube && (
+                                    <a href={youtube} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#ff0000] transition-colors" aria-label="YouTube">
+                                        <FaYoutube className="w-7 h-7 md:w-8 md:h-8" />
+                                    </a>
+                                )}
+                            </div>
+
+                            {/* --- Call to Action Button --- */}
+                            <a
+                                href={`mailto:${email}`}
+                                className="w-full inline-flex items-center justify-center bg-[#f97316] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#e55f12] transition-colors"
+                            >
+                                <FaEnvelope className="mr-2" />
+                                Contact
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
-  };
-  
+};
+
 const StatCard: FC<StatCardProps> = ({ title, value }) => (
     // ... (no changes)
     <div className="bg-[#1a1a1a] p-6 rounded-xl border border-[#374151] flex flex-col justify-between">
@@ -623,7 +643,7 @@ const StatCard: FC<StatCardProps> = ({ title, value }) => (
 
 
 // --- Main App Component ---
- const DashboardPage: FC = () => {
+const DashboardPage: FC = () => {
     const [currentPage, setCurrentPage] = useState('Tableau de bord');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -642,7 +662,7 @@ const StatCard: FC<StatCardProps> = ({ title, value }) => (
         } else {
             document.body.style.overflow = 'auto';
         }
-        
+
         const handleResize = () => {
             if (window.innerWidth >= 768) {
                 setIsSidebarOpen(false);
@@ -651,7 +671,7 @@ const StatCard: FC<StatCardProps> = ({ title, value }) => (
         };
 
         window.addEventListener('resize', handleResize);
-        
+
         return () => {
             document.body.style.overflow = 'auto';
             window.removeEventListener('resize', handleResize);
