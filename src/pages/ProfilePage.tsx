@@ -508,6 +508,10 @@ const PaymentForm: FC = () => {
 
       if (paymentIntent?.status === 'succeeded') {
         setPaymentSuccess(true);
+        // wait two seconds before refreshing the page
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }
     } catch (err) {
       setPaymentError('Une erreur est survenue lors du traitement du paiement');
