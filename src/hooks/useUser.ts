@@ -3,18 +3,51 @@ import { type AxiosResponse, AxiosError } from 'axios';
 import apiClient from '../lib/apiClient';
 import { useAuth } from '../context/AuthContext';
 
-// Define the User interface (same as in AuthContext.tsx)
+// Define the ContentCreator interface to match backend response
+interface ContentCreator {
+  id: string;
+  nickname?: string;
+  username: string;
+  profileLink: string;
+  instagram?: string;
+  country: string;
+  region?: {
+    id: string;
+    name: string;
+    countryName: string;
+    flag: string;
+  };
+  youtube?: string;
+}
+
+// Define the VisitedProfile interface
+interface VisitedProfile {
+  visitedAt: string | null;
+  creator: ContentCreator;
+}
+
+// Define the SearchHistory interface
+interface SearchHistory {
+  id: string;
+  keyword?: string;
+  country?: string;
+  createdAt: string;
+}
+
+// Define the User interface
 interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  searchHistory?: Array<{
-    id: string;
-    keyword: string | null;
-    country: string | null;
-    createdAt: string;
-  }>;
+  status: string;
+  accountType: string;
+  createdAt: string;
+  searchHistory: SearchHistory[];
+  totalSearchCount: number;
+  visitedProfiles: VisitedProfile[];
+  totalVisitsCount: number;
+  hasPaid: boolean;
 }
 
 // Define the response type for password update

@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect, type FC } from 'react';
 import { useUserProfile } from '../hooks/useUser';
 import { useAuth } from '../context/AuthContext';
-import { useRegions, type Region } from '../hooks/useRegions'; 
+import { useRegions, type Region } from '../hooks/useRegions';
 // Import the search hook and Creator type
-import { useSearchCreators, type Creator } from '../hooks/useContentCreator';
+import { useRecordVisit, useSearchCreators, type Creator } from '../hooks/useContentCreator';
+import { CheckIcon } from './Pricing';
+import { FaInstagram, FaYoutube, FaTiktok, FaTimes, FaEnvelope, FaBars } from 'react-icons/fa';
 
 // --- Type Definitions ---
 
@@ -13,35 +15,40 @@ type NavLink = {
 };
 
 // This type can now be removed if Creator is used everywhere, but we keep it for other components
-type Influencer = {
-    name: string;
-    category: string;
-    imageUrl: string;
-};
-
+interface Influencer {
+    id: string;
+    name: string; // Maps to nickname or username
+    category?: string; // Optional, as category isn't directly in ContentCreator
+    imageUrl?: string; // Optional, as imageUrl isn't in ContentCreator
+    instagram?: string | null;
+    youtube?: string | null;
+    tiktok?: string | null;
+    email?: string;
+  }
+  
 
 // --- Prop Types ---
 
 type SidebarProps = {
     activePage: string;
     onNavigate: (page: string) => void;
+    isOpen: boolean; // New prop to control sidebar visibility
+    onToggle: () => void; // New prop to toggle sidebar
 };
-
 type NavIconProps = {
     path: string;
 };
 
-type StatCardProps = {
+interface StatCardProps {
     title: string;
-    value: string;
-};
-
-type InfluencerCardProps = {
-    name: string;
-    category: string;
-    imageUrl: string;
-};
-
+    value: string | number;
+  }
+  
+  // Define the InfluencerCard props (assumed structure)
+interface InfluencerCardProps extends Influencer {
+key: string;
+}
+ 
 
 // --- SVG Icon Components (no changes) ---
 const LogoIcon: FC = () => (
@@ -57,45 +64,68 @@ const NavIcon: FC<NavIconProps> = ({ path }) => (
 );
 
 
-// --- Reusable Component Sections (no changes) ---
+// --- Reusable Component Sections ---
 
-const Sidebar: FC<SidebarProps> = ({ activePage, onNavigate }) => {
+const Sidebar: FC<SidebarProps> = ({ activePage, onNavigate, isOpen, onToggle }) => {
     const navLinks: NavLink[] = [
-        { name: 'Dashboard', iconPath: "M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" },
-        { name: 'Database', iconPath: "M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" },
-        { name: 'My Campaigns', iconPath: "M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" },
-        { name: 'Analytics', iconPath: "M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" },
-        { name: 'Billing', iconPath: "M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" }
+        { name: 'Tableau de bord', iconPath: "M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" },
+        { name: 'Base de données', iconPath: "M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" },
+        { name: 'Mes campagnes', iconPath: "M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" },
+        { name: 'Analyses', iconPath: "M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" },
+        { name: 'Facturation', iconPath: "M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" },
     ];
 
     return (
-        <aside className="hidden md:flex flex-col w-64 bg-[#000000] border-r border-[#374151] transition-all duration-300 p-6">
-            <div className="flex items-center gap-3 text-[#ffffff] mb-10">
-                <LogoIcon />
-                <h1 className="text-xl font-bold">Influen-Z</h1>
-            </div>
-            <nav className="flex flex-col gap-2">
-                {navLinks.map((link) => (
-                    <button
-                        key={link.name}
-                        onClick={() => onNavigate(link.name)}
-                        className={`flex items-center text-left w-full gap-3 px-4 py-2.5 text-[#9ca3af] rounded-lg hover:bg-[#1a1a1a] hover:text-[#ffffff] transition-colors duration-200 ${link.name === activePage ? 'bg-[#1a1a1a] text-[#ffffff] font-semibold' : ''}`}
-                    >
-                        <NavIcon path={link.iconPath} />
-                        <span>{link.name}</span>
+        <>
+            {/* Sidebar for Desktop and Mobile */}
+            <aside
+                className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#000000] border-r border-[#374151] transition-transform duration-300 transform ${
+                    isOpen ? 'translate-x-0' : '-translate-x-full'
+                } md:translate-x-0 md:static md:flex md:flex-col p-6`}
+            >
+                <div className="flex items-center gap-3 text-[#ffffff] mb-10">
+                    <LogoIcon />
+                    <a href="/">
+                        <h1 className="text-xl font-bold">Creatorbase</h1>
+                    </a>
+                </div>
+                <nav className="flex flex-col gap-2">
+                    {navLinks.map((link) => (
+                        <button
+                            key={link.name}
+                            onClick={() => {
+                                onNavigate(link.name);
+                                if (window.innerWidth < 768) { // Only toggle on mobile
+                                    onToggle();
+                                }
+                            }}
+                            className={`flex items-center text-left w-full gap-3 px-4 py-2.5 text-[#9ca3af] rounded-lg hover:bg-[#1a1a1a] hover:text-[#ffffff] transition-colors duration-200 ${
+                                link.name === activePage ? 'bg-[#1a1a1a] text-[#ffffff] font-semibold' : ''
+                            }`}
+                        >
+                            <NavIcon path={link.iconPath} />
+                            <span>{link.name}</span>
+                        </button>
+                    ))}
+                </nav>
+                <div className="mt-auto">
+                    <button className="w-full py-3 px-4 rounded-lg text-sm font-semibold bg-[#f97316] text-white hover:opacity-90 transition-opacity">
+                        Créer une nouvelle campagne
                     </button>
-                ))}
-            </nav>
-            <div className="mt-auto">
-                <button className="w-full py-3 px-4 rounded-lg text-sm font-semibold bg-[#f97316] text-white hover:opacity-90 transition-opacity">
-                    Create New Campaign
-                </button>
-            </div>
-        </aside>
+                </div>
+            </aside>
+            {/* Backdrop for Mobile */}
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+                    onClick={onToggle}
+                ></div>
+            )}
+        </>
     );
 };
 
-const Header: FC<{ title: string }> = ({ title }) => {
+const Header: FC<{ title: string; onToggleSidebar: () => void }> = ({ title, onToggleSidebar }) => {
     const { data: user } = useUserProfile();
     const { logout } = useAuth();
     const [isUserTooltipVisible, setUserTooltipVisible] = useState<boolean>(false);
@@ -113,80 +143,192 @@ const Header: FC<{ title: string }> = ({ title }) => {
     }, []);
 
     return (
-        <header className="sticky top-0 z-10 flex items-center justify-between bg-[#000000]/80 backdrop-blur-sm border-b border-[#374151] px-8 py-4">
-            <h1 className="text-2xl font-bold tracking-tight text-white">{title}</h1>
-            <div className="flex items-center gap-6">
-                <div className="relative w-64">
-                    <input className="w-full rounded-lg border-0 bg-[#1a1a1a] py-2 pl-10 pr-4 text-sm text-[#ffffff] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f97316]" placeholder="Search..." type="search" />
+        <header className="sticky top-0 z-20 flex items-center justify-between bg-[#000000]/80 backdrop-blur-sm border-b border-[#374151] px-4 md:px-8 py-4">
+            <div className="flex items-center gap-4">
+                {/* Hamburger Menu for Mobile */}
+                <button
+                    className="md:hidden text-[#ffffff] p-2"
+                    onClick={onToggleSidebar}
+                    aria-label="Toggle sidebar"
+                >
+                    <FaBars className="w-6 h-6" />
+                </button>
+                <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">{title}</h1>
+            </div>
+            <div className="flex items-center gap-3 md:gap-6">
+                 {/* Search bar moves here for better mobile layout */}
+                 <div className="hidden md:relative md:w-64">
+                    <input
+                        className="w-full rounded-lg border-0 bg-[#1a1a1a] py-2 pl-10 pr-4 text-sm text-[#ffffff] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+                        placeholder="Rechercher..."
+                        type="search"
+                    />
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <svg className="h-5 w-5 text-[#9ca3af]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+                        <svg className="h-5 w-5 text-[#9ca3af]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                        </svg>
                     </div>
                 </div>
                 <div className="relative" ref={notificationTooltipRef}>
-                    <button onClick={() => setNotificationTooltipVisible(!isNotificationTooltipVisible)} className="relative rounded-full p-2 text-[#9ca3af] hover:bg-[#1a1a1a] hover:text-[#ffffff]">
-                        <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#f97316] opacity-75"></span><span className="relative inline-flex h-3 w-3 rounded-full bg-[#f97316]"></span></span>
-                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+                    <button
+                        onClick={() => setNotificationTooltipVisible(!isNotificationTooltipVisible)}
+                        className="relative rounded-full p-2 text-[#9ca3af] hover:bg-[#1a1a1a] hover:text-[#ffffff]"
+                    >
+                        <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#f97316] opacity-75"></span>
+                            <span className="relative inline-flex h-3 w-3 rounded-full bg-[#f97316]"></span>
+                        </span>
+                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                        </svg>
                     </button>
-                    {isNotificationTooltipVisible && (<div className="absolute right-0 mt-2 w-72 bg-[#1a1a1a] border border-[#374151] rounded-md shadow-lg p-4"><p className="text-center text-sm text-[#9ca3af]">No notifications for the moment.</p></div>)}
+                    {isNotificationTooltipVisible && (
+                        <div className="absolute right-0 mt-2 w-72 bg-[#1a1a1a] border border-[#374151] rounded-md shadow-lg p-4">
+                            <p className="text-center text-sm text-[#9ca3af]">Aucune notification pour le moment.</p>
+                        </div>
+                    )}
                 </div>
                 <div className="relative" ref={userTooltipRef}>
                     <button onClick={() => setUserTooltipVisible(!isUserTooltipVisible)} className="flex items-center gap-3">
-                        <img alt="User avatar" className="h-10 w-10 rounded-full object-cover" src={`https://ui-avatars.com/api/?format=svg&name=${user?.firstName?.charAt(0) ?? "A"}&background=f97316&color=ffffff`} />
-                        <div className="text-left text-sm"><div className="font-semibold text-[#ffffff]">{user?.firstName}</div><div className="text-xs uppercase text-[#9ca3af]">{user ? "activated" : "disabled"}</div></div>
+                        <img
+                            alt="User avatar"
+                            className="h-10 w-10 rounded-full object-cover"
+                            src={`https://ui-avatars.com/api/?format=svg&name=${user?.firstName?.charAt(0) ?? "A"}&background=f97316&color=ffffff`}
+                        />
+                         <div className="hidden md:block text-left text-sm">
+                            <div className="font-semibold text-[#ffffff]">{user?.firstName}</div>
+                            <div className="text-xs uppercase text-[#9ca3af]">{user ? "activé" : "désactivé"}</div>
+                        </div>
                     </button>
-                    {isUserTooltipVisible && (<div className="absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-[#374151] rounded-md shadow-lg py-1"><button onClick={logout} className="block w-full text-left px-4 py-2 text-sm text-[#ffffff] hover:bg-[#f97316] hover:text-[#ffffff] transition-colors">Sign Out</button></div>)}
+                    {isUserTooltipVisible && (
+                        <div className="absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-[#374151] rounded-md shadow-lg py-1">
+                            <button
+                                onClick={logout}
+                                className="block w-full text-left px-4 py-2 text-sm text-[#ffffff] hover:bg-[#f97316] hover:text-[#ffffff] transition-colors"
+                            >
+                                Se déconnecter
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </header>
     );
 };
 
-
 // --- Individual Page Contents ---
 
 const DashboardContent: FC = () => {
-    // ... (This component remains unchanged)
-    const recommendedInfluencers: Influencer[] = [
-        { name: 'Chloe Foster', category: 'Fashion', imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAjUsN_gfyPXyLEYlxhRyrXYFchbzD5FIXiSJ8su83p8sckuXJvWq5YcFHapuSenqsv7TwX1-yvcMcHcIv_UWiqEyIun0Lp869LdsiQNQGRltvgXZuIFGFuh3Q0-IB695ssDUCLIPXZcu7GLCQ_VvcMMJ_B-UPKpD5oTnTVBTZ1G_t2Zv6QwOY_rGt9xAYwPOfTjeJktRQIQwuaggqVOqPjVGsq8pgBgszbxaS1DZGdgxbXDcWx0FCS1BE0NkJ-6EIEoH8rr5tN5Oc' },
-        { name: 'Liam Turner', category: 'Tech', imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBP1_FTTK27kFWBliX0y-5_O7BQSACsbcRdWseI0lgXM69vhHD3ZPKxBdmFrfgUpF1nvtxqTBjxwe0UzAVwUwq-ZeqcZuz1UR5RR7AQWhXVnTKhNQQS1-OXsfY_5HNrMv0yZfzkscy2EpZ58py-QDCjI1tYetzKtlsGMMcz7Q4VG9Er7reZe88Ql4Jm8a9KJbkdf09DP3SGjyaq0NM709hVvYJ4tOGSJGnj0eZKD9XzZ3YHc_G-CT-TF79mYH5XOXkcmKJZ4N2rWDg' },
-        { name: 'Isabella Reed', category: 'Lifestyle', imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuArbuwNuHG7sY8c9R44U_qBna92xlGVI_sog8ZSUNsnYfZ5LyBFV0hzI811cFDj2QpriYy0HMsl2MdDZZlbS7VE5JOgKti3rfYXeCNV2oqu3dGLqQjOno9dqxkyNwzym8aTIJ6fjjJko1xBTwgBL_Yd5hBIJXcH2UJnCVEgk1mJI9cRoUsm4sCUSEtQNQ8RE73W6LLtzPoZlB810Xox6dMb8_UfEXZjFuw-IRJsPvbufnx0-m_useZwzBFJEs9n3sna75gd8xsTmKA' },
-        { name: 'Jackson Cole', category: 'Travel', imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD4iGVAYAAnU4W9fThF-Ki8gR9xcr39tc0ybFstiFPdtHyTp37NC3jwBcATrM6MQouM_kUZFJ7e6K7u2h5zgTB6njJaRyDhFCtFpSDIBP8J4O1krs_G0UZyhjuwT5QUagJ-bMVzpyAX3-EcQo4alSBGdK2-fPoNDsZjHGVm35iHEz4FFn5eHLuCrT-KqjFBEWNYo5TSdVw7izy_Eila7LMLRDEcj6fOZmzkj-UCUdyl5pc5nGDSMjTVfB5vFWNf-2l5kDNYU-Pjg4' },
-    ];
+    const { data: userProfile, isLoading, error } = useUserProfile();
+  
+    // Fallback data if loading or error
+    const isDataAvailable = !isLoading && !error && userProfile;
+  
+    // Map visitedProfiles to Influencer format for "Recommended For You"
+    const recommendedInfluencers: Influencer[] = isDataAvailable
+      ? userProfile.visitedProfiles.map((profile) => ({
+          id: profile.creator.id,
+          name: profile.creator.nickname || profile.creator.username || 'Inconnu',
+          category: `${profile.creator.region?.flag} ${profile.creator.region?.countryName}`   || 'Monde', // Fallback to region or static value
+          imageUrl: undefined, // Image not provided by backend, set to undefined or use a placeholder
+          instagram: profile.creator.instagram,
+          youtube: profile.creator.youtube,
+          tiktok: null, // Not provided by backend
+          email: undefined, // Not provided by backend
+        }))
+      : [];
+  
+    // Map searchHistory to Recent Activity format
+    const recentActivities = isDataAvailable
+      ? userProfile.searchHistory.slice(0, 5).map((search) => ({
+          id: search.id,
+          description: `Recherche de "${search.keyword || 'N/A'}" dans ${search.country || 'N/A'}`,
+          timestamp: new Date(search.createdAt).toLocaleDateString(),
+        }))
+      : [];
+  
     return (
-        <main className="flex-1 overflow-y-auto p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-8">
-                    <section>
-                        <h2 className="text-2xl font-bold text-white mb-4">Good morning, Amelia!</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <StatCard title="Saved Influencers" value="45" />
-                            <StatCard title="Active Campaigns" value="3" />
-                            <StatCard title="Monthly Searches" value="120" />
-                        </div>
-                    </section>
-                    <section>
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-2xl font-bold tracking-tight text-white">Recommended For You</h2>
-                            <a className="text-sm font-semibold text-[#f97316] hover:underline" href="#">View All</a>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                            {recommendedInfluencers.map(inf => <InfluencerCard key={inf.name} {...inf} />)}
-                        </div>
-                    </section>
+      <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <section>
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-4">
+                Bonjour, {isDataAvailable ? userProfile.firstName : 'Utilisateur'}!
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatCard
+                  title="Influenceurs sauvegardés"
+                  value={isDataAvailable ? userProfile.totalVisitsCount : 0}
+                />
+                <StatCard title="Campagnes actives" value={3} /> {/* Static, as no backend data */}
+                <StatCard
+                  title="Recherches mensuelles"
+                  value={isDataAvailable ? userProfile.totalSearchCount : 0}
+                />
+              </div>
+            </section>
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white">Récemment visités</h2>
+                <a className="text-sm font-semibold text-[#f97316] hover:underline" href="#">
+                  Voir tout
+                </a>
+              </div>
+              {isLoading ? (
+                <p className="text-white">Chargement des influenceurs...</p>
+              ) : error ? (
+                <p className="text-red-500">Erreur lors du chargement des influenceurs. Veuillez réessayer.</p>
+              ) : recommendedInfluencers.length === 0 ? (
+                <p className="text-white">Aucun influenceur récemment visité.</p>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                  {recommendedInfluencers.map((inf) => (
+                    <InfluencerCard
+                      key={inf.id}
+                      id={inf.id}
+                      name={inf.name}
+                      category={inf.category}
+                      imageUrl={`https://ui-avatars.com/api/?format=svg&name=${encodeURIComponent(inf.name)}&background=2a2a2a&color=ffffff`}
+
+                      instagram={inf.instagram}
+                      youtube={inf.youtube}
+                      tiktok={inf.tiktok}
+                      email={inf.email}
+                    />
+                  ))}
                 </div>
-                <div className="lg:col-span-1 space-y-8">
-                    <section><h2 className="text-2xl font-bold tracking-tight text-white mb-4">Recent Activity</h2></section>
-                    <section><h2 className="text-2xl font-bold tracking-tight text-white mb-4">Recently Viewed</h2></section>
-                </div>
-            </div>
-        </main>
+              )}
+            </section>
+          </div>
+          <div className="lg:col-span-1 space-y-8">
+            <section>
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white mb-4">Activité Récente</h2>
+              {isLoading ? (
+                <p className="text-white">Chargement des activités...</p>
+              ) : error ? (
+                <p className="text-red-500">Erreur lors du chargement des activités. Veuillez réessayer.</p>
+              ) : recentActivities.length === 0 ? (
+                <p className="text-white">Aucune activité récente.</p>
+              ) : (
+                <ul className="space-y-4">
+                  {recentActivities.map((activity) => (
+                    <li key={activity.id} className="text-white text-sm md:text-base">
+                      {activity.description} - {activity.timestamp}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+        </div>
+      </main>
     );
-};
+  };
 
 const DatabaseContent: FC = () => {
     const [keyword, setKeyword] = useState<string>('');
     const [selectedCountry, setSelectedCountry] = useState<string>('');
-    
+
     // --- HOOKS ---
     const { data: regions, isLoading: isLoadingRegions, isError: isRegionsError } = useRegions();
     const { mutate: search, data: searchData, isPending: isSearching, isError: isSearchError } = useSearchCreators();
@@ -201,61 +343,67 @@ const DatabaseContent: FC = () => {
     const creators = searchData?.data.data;
 
     return (
-        <main className="flex-1 overflow-y-auto p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
             <section>
-                <h2 className="text-2xl font-bold tracking-tight text-white">Find Content Creators</h2>
-                <div className="mt-6 flex flex-col md:flex-row gap-4 items-center">
-                    <input className="w-full md:w-1/2 rounded-lg border-0 bg-[#1a1a1a] py-3 px-4 text-sm text-[#ffffff] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f97316]" placeholder="Search by keyword..." type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
-                    
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white">Trouver des créateurs de contenu</h2>
+                <div className="mt-6 flex flex-col md:flex-row gap-4">
+                    <input className="w-full rounded-lg border-0 bg-[#1a1a1a] py-3 px-4 text-sm text-[#ffffff] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f97316]" placeholder="Rechercher par mot-clé..." type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+
                     <select
                         value={selectedCountry}
                         onChange={(e) => setSelectedCountry(e.target.value)}
-                        className="w-full md:w-1/2 rounded-lg border-0 bg-[#1a1a1a] py-3 px-4 text-sm text-[#ffffff] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+                        className="w-full rounded-lg border-0 bg-[#1a1a1a] py-3 px-4 text-sm text-[#ffffff] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f97316]"
                         disabled={isLoadingRegions}
                     >
                         <option value="" disabled>
-                            {isLoadingRegions ? 'Loading countries...' : 'Select a country'}
+                            {isLoadingRegions ? 'Chargement des pays...' : 'Sélectionnez un pays'}
                         </option>
-                        {isRegionsError && <option disabled>Error loading countries</option>}
-                        
+                        {isRegionsError && <option disabled>Erreur lors du chargement des pays</option>}
+
                         {/* CORRECTED: Map directly over 'regions' and use region.name for the value */}
-                        {regions?.data.map((region:Region) => (
+                        {regions?.data.map((region: Region) => (
                             <option key={region.id} value={region.name}>
                                 {region.flag} {region.countryName}
                             </option>
                         ))}
                     </select>
 
-                    <button 
+                    <button
                         onClick={handleSearch}
                         disabled={isSearching}
-                        className="w-full md:w-auto py-3 px-8 rounded-lg text-sm font-semibold bg-[#f97316] text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full md:w-auto py-3 px-8 rounded-lg text-sm font-semibold bg-[#f97316] text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                     >
-                        {isSearching ? 'Searching...' : 'Search'}
+                        {isSearching ? 'Recherche en cours...' : 'Rechercher'}
                     </button>
                 </div>
             </section>
-            
+
             <section className="mt-10">
-                <h3 className="text-xl font-bold tracking-tight text-white">Results</h3>
-                <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {isSearching && <p className="text-[#9ca3af] col-span-full">Loading results...</p>}
-                    {isSearchError && <p className="text-red-500 col-span-full">An error occurred during the search.</p>}
+                <h3 className="text-xl font-bold tracking-tight text-white">Résultats</h3>
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                    {isSearching && <p className="text-[#9ca3af] col-span-full">Chargement des résultats...</p>}
+                    {isSearchError && <p className="text-red-500 col-span-full">Une erreur est survenue lors de la recherche.</p>}
 
                     {!isSearching && !isSearchError && (
                         <>
-                            {!creators && <p className="text-[#9ca3af] col-span-full">Start a new search to find creators.</p>}
-                            {creators && creators.length === 0 && <p className="text-[#9ca3af] col-span-full">No results found for your query.</p>}
-                            
+                            {!creators && <p className="text-[#9ca3af] col-span-full">Commencez une nouvelle recherche pour trouver des créateurs.</p>}
+                            {creators && creators.length === 0 && <p className="text-[#9ca3af] col-span-full">Aucun résultat trouvé pour votre requête.</p>}
+
                             {creators?.map((creator: Creator) => {
                                 const creatorName = creator.nickname || creator.username || 'N/A';
                                 return (
                                     <InfluencerCard
+
                                         key={creator.id}
+                                        id={creator.id} 
                                         name={creatorName}
-                                        category={creator.region.countryName}
+                                        category={creator.region.flag+" " +creator.region.countryName}
                                         imageUrl={`https://ui-avatars.com/api/?format=svg&name=${encodeURIComponent(creatorName)}&background=2a2a2a&color=ffffff`}
-                                    />
+                                        instagram={creator.instagram}
+                                        youtube={creator.youtube}
+                                        tiktok={creator.profileLink}
+                                        email={creator.email ?? undefined}
+                                        />
                                 );
                             })}
                         </>
@@ -268,51 +416,260 @@ const DatabaseContent: FC = () => {
 const ComingSoonContent: FC = () => (
     // ... (no changes)
     <main className="flex-1 overflow-y-auto p-8 flex items-center justify-center">
-        <div className="text-center">
-            <h2 className="text-3xl font-bold text-white mb-2">Coming Soon!</h2>
-            <p className="text-lg text-[#9ca3af]">This feature is under construction. Please check back later.</p>
+        <div className="text-center px-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Bientôt disponible!</h2>
+            <p className="text-base md:text-lg text-[#9ca3af]">Cette fonctionnalité est en cours de construction. Veuillez revenir plus tard.</p>
         </div>
     </main>
 );
+const features = [
+    "Accès à tous les influenceurs",
+    "Recherches illimitées",
+    "Analyses avancées",
+    "Outils de gestion de campagne",
+    "Support par e-mail prioritaire",
+];
 
-const InfluencerCard: FC<InfluencerCardProps> = ({ name, category, imageUrl }) => (
+const PricingContent: FC = () => {
     // ... (no changes)
-    <div className="bg-[#1a1a1a] p-4 rounded-xl border border-transparent hover:border-[#f97316] transition-all duration-300">
-        <div className="w-full aspect-square bg-cover bg-center rounded-lg mb-3" style={{ backgroundImage: `url("${imageUrl}")` }}></div>
-        <h3 className="font-semibold truncate">{name}</h3>
-        <p className="text-sm text-[#9ca3af]">{category}</p>
-    </div>
-);
+    const { data } = useUserProfile();
+    return (<main className="flex-1 overflow-y-auto p-4 md:p-8 flex items-center justify-center">
+        <div className="w-full max-w-md">
+            {/* Pricing Card */}
+            <div className="flex w-full flex-col gap-6 rounded-lg border-2 border-[#f47b25] bg-[#1a1a1a] p-6 md:p-8">
+                <div className="flex-grow">
+                    <div className="text-center">
+                        <h3 className="text-2xl md:text-3xl font-semibold text-white">Accès à vie</h3>
+                        <p className="mt-2 flex items-baseline justify-center gap-2">
+                            <span className="text-5xl md:text-6xl font-bold tracking-tight text-white">€49.90</span>
+                        </p>
+                        <p className="text-base md:text-lg text-[#a3a3a3]">Paiement unique</p>
+                    </div>
+                    <ul className="mt-8 space-y-4 text-left">
+                        {features.map((feature, index) => (
+                            <li key={index} className="flex items-start gap-3">
+                                <CheckIcon color='#f47b25' />
+                                <span className="text-white">{feature}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                {
+                    !data?.hasPaid && (<button className="flex min-w-[84px] items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-[#f47b25] text-black text-base font-bold transition-transform hover:scale-105 w-full mt-8">
+                        Obtenez l'accès maintenant
+                    </button>)
 
+                }
+                {
+                    data?.hasPaid && (<button className="flex min-w-[84px] items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-green-600 text-white text-base font-bold transition-transform hover:scale-105 w-full mt-8">
+                        <CheckIcon color='white' />  Déjà activé
+                    </button>)
+
+                }
+            </div>
+        </div>
+    </main>
+    );
+}
+
+const InfluencerCard: FC<InfluencerCardProps> = ({ id, name, email, category, imageUrl, instagram, tiktok, youtube }) => {
+    // Assuming useRecordVisit is a custom hook you have
+    const { mutate: recordVisit } = useRecordVisit(); 
+   
+    const [isModalOpen, setIsModalOpen] = useState(false);
+  
+    const handleCardClick = () => {
+      recordVisit(id);
+      setIsModalOpen(true);
+    };
+  
+    const closeModal = () => {
+      setIsModalOpen(false);
+    };
+  
+    return (
+      <>
+        {/* --- Influencer Card (No changes here) --- */}
+        <div
+          className="p-4 rounded-xl border border-gray-800 hover:border-orange-500 transition-all duration-300 cursor-pointer group"
+          onClick={handleCardClick}
+        >
+          <div className="w-full aspect-square overflow-hidden rounded-lg mb-3">
+            <div 
+              className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-300" 
+              style={{ backgroundImage: `url("${imageUrl}")` }}
+            ></div>
+          </div>
+          <h3 className="font-semibold truncate text-white">{name}</h3>
+          <p className="text-sm text-gray-400 mb-3">{category}</p>
+          <div className="flex space-x-3">
+            {instagram && (
+              <a
+                href={instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="bg-gray-800 rounded-full p-2">
+                  <FaInstagram className="w-5 h-5" />
+                </div>
+              </a>
+            )}
+            {tiktok && (
+              <a
+                href={tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="bg-gray-800 rounded-full p-2">
+                  <FaTiktok className="w-5 h-5" />
+                </div>
+              </a>
+            )}
+            {youtube && (
+              <a
+                href={youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="bg-gray-800 rounded-full p-2">
+                  <FaYoutube className="w-5 h-5" />
+                </div>
+              </a>
+            )}
+          </div>
+        </div>
+  
+        {/* --- Improved Modal --- */}
+        {isModalOpen && (
+          <div
+            // Backdrop with blur effect and fade-in animation
+            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 animate-fadeIn"
+            onClick={closeModal}
+          >
+            <div
+              // Modal container with improved styling and animation
+              className="bg-[#121212] border border-gray-700 rounded-2xl shadow-2xl max-w-sm w-full relative transform transition-all duration-300 animate-scaleUp"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* --- Close Button --- */}
+              <button
+                onClick={closeModal}
+                className="absolute top-3 right-3 text-gray-500 hover:text-white transition-colors z-10"
+                aria-label="Fermer la modale"
+              >
+                <FaTimes className="w-6 h-6" />
+              </button>
+              
+              {/* --- Modal Content --- */}
+              <div className="p-6 md:p-8 text-center">
+                {/* --- Profile Image --- */}
+                <div className="w-24 h-24 md:w-32 md:h-32 mx-auto rounded-full mb-5 border-4 border-gray-700 overflow-hidden">
+                  <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+                </div>
+  
+                {/* --- Influencer Info --- */}
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">{name}</h2>
+                <p className="text-base md:text-md text-orange-500 font-medium mb-6">{category}</p>
+                
+                {/* --- Social Links --- */}
+                <div className="flex justify-center space-x-5 mb-8">
+                  {instagram && (
+                    <a href={instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#d62976] transition-colors" aria-label="Instagram">
+                      <FaInstagram className="w-7 h-7 md:w-8 md:h-8" />
+                    </a>
+                  )}
+                  {tiktok && (
+                    <a href={tiktok} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#00f2ea] transition-colors" aria-label="TikTok">
+                      <FaTiktok className="w-7 h-7 md:w-8 md:h-8" />
+                    </a>
+                  )}
+                  {youtube && (
+                    <a href={youtube} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#ff0000] transition-colors" aria-label="YouTube">
+                      <FaYoutube className="w-7 h-7 md:w-8 md:h-8" />
+                    </a>
+                  )}
+                </div>
+                
+                {/* --- Call to Action Button --- */}
+                <a 
+                  href={`mailto:${email}`}
+                  className="w-full inline-flex items-center justify-center bg-[#f97316] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#e55f12] transition-colors"
+                >
+                  <FaEnvelope className="mr-2" />
+                  Contacter
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+  
 const StatCard: FC<StatCardProps> = ({ title, value }) => (
     // ... (no changes)
     <div className="bg-[#1a1a1a] p-6 rounded-xl border border-[#374151] flex flex-col justify-between">
         <p className="text-sm font-medium text-[#9ca3af]">{title}</p>
-        <p className="text-4xl font-bold text-[#ffffff]">{value}</p>
+        <p className="text-3xl md:text-4xl font-bold text-[#ffffff]">{value}</p>
     </div>
 );
 
 
-// --- Main App Component ---
 
-const DashboardPage: FC = () => {
-    // ... (no changes)
-    const [currentPage, setCurrentPage] = useState('Dashboard');
+// --- Main App Component ---
+ const DashboardPage: FC = () => {
+    const [currentPage, setCurrentPage] = useState('Tableau de bord');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const handleNavigate = (page: string) => {
         setCurrentPage(page);
     };
 
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+    };
+
+    // Prevent scrolling when sidebar is open on mobile
+    useEffect(() => {
+        if (isSidebarOpen && window.innerWidth < 768) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+        
+        const handleResize = () => {
+            if (window.innerWidth >= 768) {
+                setIsSidebarOpen(false);
+                document.body.style.overflow = 'auto';
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        
+        return () => {
+            document.body.style.overflow = 'auto';
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [isSidebarOpen]);
+
     const renderPage = () => {
         switch (currentPage) {
-            case 'Dashboard':
+            case 'Tableau de bord':
                 return <DashboardContent />;
-            case 'Database':
+            case 'Base de données':
                 return <DatabaseContent />;
-            case 'My Campaigns':
-            case 'Analytics':
-            case 'Billing':
+            case 'Mes campagnes':
                 return <ComingSoonContent />;
+            case 'Analyses':
+                return <ComingSoonContent />;
+            case 'Facturation':
+                return <PricingContent />;
             default:
                 return <DashboardContent />;
         }
@@ -321,9 +678,14 @@ const DashboardPage: FC = () => {
     return (
         <div className="bg-[#000000] text-[#ffffff] font-['Inter',_sans-serif]">
             <div className="flex min-h-screen">
-                <Sidebar activePage={currentPage} onNavigate={handleNavigate} />
-                <div className="flex-1 flex flex-col">
-                    <Header title={currentPage} />
+                <Sidebar
+                    activePage={currentPage}
+                    onNavigate={handleNavigate}
+                    isOpen={isSidebarOpen}
+                    onToggle={toggleSidebar}
+                />
+                <div className="flex-1 flex flex-col min-w-0">
+                    <Header title={currentPage} onToggleSidebar={toggleSidebar} />
                     {renderPage()}
                 </div>
             </div>

@@ -9,16 +9,12 @@ const LogoIcon = () => (
     </svg>
 );
 
-
 const LoginPage = (): JSX.Element => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  
-  // Your existing logic remains unchanged. TypeScript can often infer these types,
-  // but explicitly defining the error type is good practice.
+
   const { mutate: loginUser, isPending, error } = useLogin();
 
-  // Added the correct TypeScript event type for a form submission
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     loginUser({ email, password });
@@ -28,83 +24,86 @@ const LoginPage = (): JSX.Element => {
     <div className="flex min-h-screen flex-col justify-center bg-[#000000] px-6 py-12 lg:px-8 font-['Inter',_sans-serif]">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-            <LogoIcon />
+        <a href="/home">
+
+<LogoIcon />
+
+</a>
         </div>
         <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-white">
-          Sign in to your account
+          Connectez-vous à votre compte
         </h2>
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-[#1a1a1a] border border-[#374151] rounded-xl p-8 shadow-lg">
-            <form className="space-y-6" onSubmit={handleSubmit}>
-                <div>
-                    <label
-                        htmlFor="email"
-                        className="block text-sm font-medium leading-6 text-[#9ca3af]"
-                    >
-                        Email address
-                    </label>
-                    <div className="mt-2">
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            autoComplete="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="block w-full rounded-lg border-0 bg-[#2a2a2a] py-2.5 px-4 text-white shadow-sm placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#f97316] sm:text-sm sm:leading-6"
-                        />
-                    </div>
-                </div>
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium leading-6 text-[#9ca3af]"
+              >
+                Adresse e-mail
+              </label>
+              <div className="mt-2">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="block w-full rounded-lg border-0 bg-[#2a2a2a] py-2.5 px-4 text-white shadow-sm placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#f97316] sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div>
 
-                <div>
-                    <label
-                        htmlFor="password"
-                        className="block text-sm font-medium leading-6 text-[#9ca3af]"
-                    >
-                        Password
-                    </label>
-                    <div className="mt-2">
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            autoComplete="current-password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="block w-full rounded-lg border-0 bg-[#2a2a2a] py-2.5 px-4 text-white shadow-sm placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#f97316] sm:text-sm sm:leading-6"
-                        />
-                    </div>
-                </div>
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium leading-6 text-[#9ca3af]"
+              >
+                Mot de passe
+              </label>
+              <div className="mt-2">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="block w-full rounded-lg border-0 bg-[#2a2a2a] py-2.5 px-4 text-white shadow-sm placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#f97316] sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div>
 
-                {/* Display API Error Message safely */}
-                {error && (
-                    <p className="text-sm text-red-500">
-                        {/* Type guard to safely access error.message */}
-                        {error instanceof Error ? error.message : "Invalid credentials. Please try again."}
-                    </p>
-                )}
+            {/* Display API Error Message safely */}
+            {error && (
+              <p className="text-sm text-red-500">
+                {error instanceof Error ? error.message : "Identifiants invalides. Veuillez réessayer."}
+              </p>
+            )}
 
-                <div>
-                    <button
-                        type="submit"
-                        disabled={isPending}
-                        className="flex w-full justify-center rounded-md bg-[#f97316] px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f97316] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isPending ? 'Signing in...' : 'Sign in'}
-                    </button>
-                </div>
-            </form>
+            <div>
+              <button
+                type="submit"
+                disabled={isPending}
+                className="flex w-full justify-center rounded-md bg-[#f97316] px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f97316] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isPending ? 'Connexion en cours...' : 'Se connecter'}
+              </button>
+            </div>
+          </form>
         </div>
 
         <p className="mt-10 text-center text-sm text-[#9ca3af]">
-            Not a member?{' '}
-            <a href="/signup" className="font-semibold leading-6 text-[#f97316] hover:text-orange-400">
-                Sign up now
-            </a>
+          Pas encore membre ?{' '}
+          <a href="/signup" className="font-semibold leading-6 text-[#f97316] hover:text-orange-400">
+            Inscrivez-vous maintenant
+          </a>
         </p>
       </div>
     </div>

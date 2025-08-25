@@ -17,6 +17,7 @@ export interface Creator {
   instagram: string | null;
   youtube: string | null;
   bio: string | null;
+  email: string | null;
   // ... other fields from your API response
 }
 
@@ -55,3 +56,16 @@ export const useSearchCreators = () => {
 };
 
 // ... (useRecordVisit hook remains the same)
+
+export const useRecordVisit = () => {
+  return useMutation({
+    mutationFn: (creatorId: string) =>
+      apiClient.get(`/content-creators/${creatorId}/visit`  ),
+    onSuccess: () => {
+      console.log('Visit recorded successfully');
+    },
+    onError: (error: AxiosError) => {
+      console.error('Failed to record visit:', error);
+    },
+  });
+}

@@ -1,7 +1,7 @@
 import { useState, type FormEvent, type JSX } from 'react';
-// Assuming useSignup is in this path, adjust if necessary
 import { useSignup } from '../hooks/useAuthMutations';
 import type { AxiosError } from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 // SVG Icon for brand consistency
 const LogoIcon = () => (
@@ -19,17 +19,38 @@ const SignupPage = (): JSX.Element => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    signupUser({ firstName, lastName, email, password });
+    signupUser(
+      { firstName, lastName, email, password },
+      {
+        onSuccess: () => {
+          toast.success('Compte créé avec succès ! Redirection vers la connexion...');
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 2000);
+        },
+        onError: (err: AxiosError) => {
+          toast.error(  "Échec de l'inscription. Veuillez réessayer.");
+        },
+      }
+    );
   };
 
   return (
     <div className="flex min-h-screen flex-col justify-center bg-[#000000] px-6 py-12 lg:px-8 font-['Inter',_sans-serif]">
+     <Toaster
+        position="bottom-right"
+        reverseOrder={false}
+      />
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-            <LogoIcon />
+          <a href="/home">
+
+          <LogoIcon />
+
+          </a>
         </div>
         <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-white">
-          Create your account
+          Créez votre compte
         </h2>
       </div>
 
@@ -39,7 +60,7 @@ const SignupPage = (): JSX.Element => {
             <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium leading-6 text-[#9ca3af]">
-                  First Name
+                  Prénom
                 </label>
                 <div className="mt-2">
                   <input
@@ -56,7 +77,7 @@ const SignupPage = (): JSX.Element => {
               </div>
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium leading-6 text-[#9ca3af]">
-                  Last Name
+                  Nom de famille
                 </label>
                 <div className="mt-2">
                   <input
@@ -75,7 +96,7 @@ const SignupPage = (): JSX.Element => {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium leading-6 text-[#9ca3af]">
-                Email address
+                Adresse e-mail
               </label>
               <div className="mt-2">
                 <input
@@ -93,7 +114,7 @@ const SignupPage = (): JSX.Element => {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium leading-6 text-[#9ca3af]">
-                Password
+                Mot de passe
               </label>
               <div className="mt-2">
                 <input
@@ -111,7 +132,7 @@ const SignupPage = (): JSX.Element => {
 
             {error && (
               <p className="text-sm text-red-500">
-                {(error as AxiosError).message || 'Signup failed. Please try again.'}
+                {"Échec de l'inscription. Veuillez réessayer."}
               </p>
             )}
 
@@ -121,16 +142,16 @@ const SignupPage = (): JSX.Element => {
                 disabled={isPending}
                 className="flex w-full justify-center rounded-md bg-[#f97316] px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f97316] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isPending ? 'Creating account...' : 'Create Account'}
+                {isPending ? 'Création du compte...' : 'Créer un compte'}
               </button>
             </div>
           </form>
         </div>
 
         <p className="mt-10 text-center text-sm text-[#9ca3af]">
-          Already have an account?{' '}
+          Vous avez déjà un compte ?{' '}
           <a href="/login" className="font-semibold leading-6 text-[#f97316] hover:text-orange-400">
-            Sign in
+            Se connecter
           </a>
         </p>
       </div>
