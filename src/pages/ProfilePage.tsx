@@ -22,7 +22,7 @@ const features = [
   "Support par e-mail prioritaire",
 ];
 
-const stripePromise = loadStripe('pk_test_51Rki8VP0XFOMw1y33mFVSXbwlsKsm4nPgsGZNDbg4wUCvc5e2b6LA8bLXvnD2LUu9XwY33Y2fyNqpzcDszdJFZ0T00yFkyB9oV');
+const stripePromise = loadStripe('pk_live_51Rki8VP0XFOMw1y3QFCdwM2z3SRAhKbpJAkAmtLCn8YQY49oDjZNTX7deXcCa9g8sSTg8X3Oq5XhaU5EaygY72au00KuFKOtGF');
 
 interface Influencer {
   id: string;
