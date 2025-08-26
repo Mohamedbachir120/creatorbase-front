@@ -93,11 +93,11 @@ const Header: FC = () => {
       >
         <nav className="flex flex-col items-center justify-center h-full gap-8 text-xl">
           <a onClick={() => setIsMenuOpen(false)} href="/home" className="font-medium text-[#a3a3a3] hover:text-[#f47b25]">Accueil</a>
-          <a onClick={() => setIsMenuOpen(false)} href="#" className="font-medium text-[#a3a3a3] hover:text-[#f47b25]">Fonctionnalités</a>
+          <a onClick={() => setIsMenuOpen(false)} href="/home#features" className="font-medium text-[#a3a3a3] hover:text-[#f47b25]">Fonctionnalités</a>
           <a onClick={() => setIsMenuOpen(false)} href="#" className="font-semibold text-[#f47b25]">Tarifs</a>
-          <a onClick={() => setIsMenuOpen(false)} href="#" className="font-medium text-[#a3a3a3] hover:text-[#f47b25]">Contact</a>
+          <a onClick={() => setIsMenuOpen(false)} href="/home#footer" className="font-medium text-[#a3a3a3] hover:text-[#f47b25]">Contact</a>
           <div className="mt-8 flex flex-col items-center gap-6">
-            <a onClick={() => setIsMenuOpen(false)} className="sm:hidden text-base font-medium text-[#a3a3a3] transition-colors hover:text-[#f47b25]" href="#">Connexion</a>
+            <a onClick={() => setIsMenuOpen(false)} className="sm:hidden text-base font-medium text-[#a3a3a3] transition-colors hover:text-[#f47b25]" href="/dashboard">Connexion</a>
             <button className="sm:hidden flex min-w-[84px] items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-[#f47b25] text-black text-base font-bold">
                 Commencer
             </button>
