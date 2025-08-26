@@ -556,7 +556,7 @@ const PaymentForm: FC = () => {
             disabled={!stripe || isPending}
             className="w-full mt-4 py-3 px-6 rounded-lg text-base font-semibold bg-[#f97316] text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPending ? 'Traitement...' : 'Payer €49.90'}
+            {isPending ? 'Traitement...' : 'Payer €1.00'}
           </button> }
         </form>
       )}
@@ -586,7 +586,7 @@ const PricingContent: FC = () => {
             <div className="text-center">
               <h3 className="text-2xl md:text-3xl font-semibold text-white">Accès à vie</h3>
               <p className="mt-2 flex items-baseline justify-center gap-2">
-                <span className="text-5xl md:text-6xl font-bold tracking-tight text-white">€49.90</span>
+                <span className="text-5xl md:text-6xl font-bold tracking-tight text-white">€1.00</span>
               </p>
               <p className="text-base md:text-lg text-[#a3a3a3]">Paiement unique</p>
             </div>
