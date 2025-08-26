@@ -205,9 +205,9 @@ export const CTA = () => {
             Commencez votre essai gratuit aujourd'hui et débloquez la puissance de notre base de données d'influenceurs. Aucune carte de crédit requise.
           </p>
           <div className="mt-8">
-            <button className="inline-flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-12 px-6 sm:px-8 bg-gradient-to-r from-[#f97316] to-[#ea580c] text-neutral-900 text-sm sm:text-base font-bold tracking-wide transition-all transform hover:scale-105">
+            <a href='/dashboard' className="inline-flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-12 px-6 sm:px-8 bg-gradient-to-r from-[#f97316] to-[#ea580c] text-neutral-900 text-sm sm:text-base font-bold tracking-wide transition-all transform hover:scale-105">
               <span>Commencer votre essai gratuit</span>
-            </button>
+            </a>
           </div>
         </div>
       </div>
