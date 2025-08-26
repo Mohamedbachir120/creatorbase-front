@@ -227,6 +227,18 @@ export const Footer = () => {
 
 
 function LandingPage() {
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      // We remove the '#' character from the start of the hash
+      const id = hash.substring(1);
+      const element = document.getElementById(id);
+      if (element) {
+        // Scroll to the element
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, []);
   return (
     <div className="bg-neutral-900 text-neutral-100 font-poppins">
       <Header />
