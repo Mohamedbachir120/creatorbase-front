@@ -99,9 +99,9 @@ export const Header: FC = () => {
       >
         <nav className="flex flex-col items-center justify-center h-full gap-8 text-2xl font-medium">
           <a onClick={() => setIsMenuOpen(false)} className="text-neutral-100 hover:text-[#f97316] transition-colors" href="/home">Accueil</a>
-          <a onClick={() => setIsMenuOpen(false)} className="text-neutral-100 hover:text-[#f97316] transition-colors" href="#">Fonctionnalités</a>
+          <a onClick={() => setIsMenuOpen(false)} className="text-neutral-100 hover:text-[#f97316] transition-colors" href="#features">Fonctionnalités</a>
           <a onClick={() => setIsMenuOpen(false)} className="text-neutral-100 hover:text-[#f97316] transition-colors" href="/pricing">Tarifs</a>
-          <a onClick={() => setIsMenuOpen(false)} className="text-neutral-100 hover:text-[#f97316] transition-colors" href="#">Contact</a>
+          <a onClick={() => setIsMenuOpen(false)} className="text-neutral-100 hover:text-[#f97316] transition-colors" href="#footer">Contact</a>
           {/* Login/Dashboard button for mobile menu */}
           <div className="mt-4">
             {!isLoading && !isAuthenticated &&
