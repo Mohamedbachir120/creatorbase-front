@@ -165,11 +165,11 @@ const Sidebar: FC<SidebarProps> = ({ activePage, onNavigate, isOpen, onToggle })
             </button>
           ))}
         </nav>
-        <div className="mt-auto">
+        {/* <div className="mt-auto">
           <button className="w-full py-3 px-4 rounded-lg text-sm font-semibold bg-[#f97316] text-white hover:opacity-90 transition-opacity">
             Créer une nouvelle campagne
           </button>
-        </div>
+        </div> */}
       </aside>
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden" onClick={onToggle}></div>

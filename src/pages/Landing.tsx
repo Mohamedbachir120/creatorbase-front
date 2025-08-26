@@ -64,9 +64,9 @@ export const Header: FC = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
               <a className="text-neutral-100 hover:text-[#f97316] transition-colors" href="/home">Accueil</a>
-              <a className="text-neutral-100 hover:text-[#f97316] transition-colors" href="#">Fonctionnalités</a>
+              <a className="text-neutral-100 hover:text-[#f97316] transition-colors" href="#features">Fonctionnalités</a>
               <a className="text-neutral-100 hover:text-[#f97316] transition-colors" href="/pricing">Tarifs</a>
-              <a className="text-neutral-100 hover:text-[#f97316] transition-colors" href="#">Contact</a>
+              <a className="text-neutral-100 hover:text-[#f97316] transition-colors" href="#footer">Contact</a>
             </nav>
 
             <div className="flex items-center gap-4">
@@ -148,7 +148,7 @@ export const Hero = () => {
 
 export const Features = () => {
   return (
-    <section className="py-20 sm:py-24 lg:py-32 bg-neutral-800">
+    <section className="py-20 sm:py-24 lg:py-32 bg-neutral-800" id='features'>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white font-montserrat">Tout ce dont vous avez besoin pour trouver le bon influenceur</h2>
@@ -217,7 +217,7 @@ export const CTA = () => {
 
 export const Footer = () => {
   return (
-    <footer className="bg-neutral-800">
+    <footer className="bg-neutral-800" id='footer'>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-sm text-neutral-400">
         <p>© 2025 InfluenceContact. Tous droits réservés.</p>
       </div>

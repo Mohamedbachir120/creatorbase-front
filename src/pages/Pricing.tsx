@@ -61,9 +61,9 @@ const Header: FC = () => {
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-8 md:flex">
             <a className="text-base font-medium text-[#a3a3a3] transition-colors hover:text-[#f47b25]" href="/home">Accueil</a>
-            <a className="text-base font-medium text-[#a3a3a3] transition-colors hover:text-[#f47b25]" href="#">Fonctionnalités</a>
+            <a className="text-base font-medium text-[#a3a3a3] transition-colors hover:text-[#f47b25]" href="/home#features">Fonctionnalités</a>
             <a className="text-base font-semibold text-[#f47b25]" href="#">Tarifs</a>
-            <a className="text-base font-medium text-[#a3a3a3] transition-colors hover:text-[#f47b25]" href="#">Contact</a>
+            <a className="text-base font-medium text-[#a3a3a3] transition-colors hover:text-[#f47b25]" href="/home#footer">Contact</a>
           </nav>
 
           <div className="flex items-center gap-4">
@@ -195,9 +195,9 @@ const CtaSection: FC = () => {
           Notre équipe est là pour vous aider. Contactez-nous pour toute demande supplémentaire concernant notre plan de paiement unique.
         </p>
         <div className="mt-8 flex justify-center">
-          <button className="flex min-w-[84px] items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-[#f47b25] text-black text-base font-bold transition-transform hover:scale-105">
+          <a href='/home#footer' className="flex min-w-[84px] items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-[#f47b25] text-black text-base font-bold transition-transform hover:scale-105">
             Nous Contacter
-          </button>
+          </a>
         </div>
       </div>
     </section>
