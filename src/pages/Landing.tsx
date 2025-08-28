@@ -164,7 +164,7 @@ export const Features = () => {
               <svg className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7V4H20V7L12 11L4 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M4 11V20H20V11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </div>
             <h3 className="mt-4 text-xl font-bold text-white font-montserrat">Base de données complète</h3>
-            <p className="mt-2 text-sm text-neutral-400">Accédez à une vaste base de données de plus de 600 000 influenceurs dans divers secteurs et niches.</p>
+            <p className="mt-2 text-sm text-neutral-400">Accédez à une vaste base de données de plus de 1 000 000 influenceurs dans divers secteurs et niches.</p>
           </div>
           <div className="bg-neutral-700/50 rounded-xl p-6 flex flex-col items-center text-center transform hover:-translate-y-2 transition-transform duration-300">
             <div className="bg-gradient-to-br from-[#f97316] to-[#ea580c] p-3 rounded-full inline-flex">
