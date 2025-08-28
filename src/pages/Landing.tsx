@@ -137,7 +137,7 @@ export const Hero = () => {
         <div className="mt-12 lg:mt-16 pb-16 md:pb-20">
           <div className="inline-block bg-neutral-800/50 backdrop-blur-sm rounded-lg px-4 py-3 sm:px-6 sm:py-4">
             <p className="text-2xl sm:text-3xl font-bold text-white">
-              <span className="bg-gradient-to-r from-[#f97316] to-[#ea580c] bg-clip-text text-transparent">+50K</span> Influenceurs et ça continue
+              <span className="bg-gradient-to-r from-[#f97316] to-[#ea580c] bg-clip-text text-transparent">+1M</span> Influenceurs et ça continue
             </p>
           </div>
         </div>
